@@ -1,0 +1,194 @@
+{
+	"info": {
+		"_postman_id": "5e9249c8-6141-4366-ae16-5fda4b24c44e",
+		"name": "exspring",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "postUserOK",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"ckri23eraz\",\n    \"birthdate\": \"07-06-2002\",\n    \"country\": \"France\",\n    \"phoneNumber\": \"0251661495\",\n    \"gender\": \"Male\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user"
+					]
+				},
+				"description": "creates a user"
+			},
+			"response": []
+		},
+		{
+			"name": "postUserOK without non required fields",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"ckraz\",\n    \"birthdate\": \"07-06-2002\",\n    \"country\": \"France\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user"
+					]
+				},
+				"description": "creates a user"
+			},
+			"response": []
+		},
+		{
+			"name": "postUserFail invalidDate",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"ckri23eraz\",\n    \"birthdate\": \"07-06-22002\",\n    \"country\": \"France\",\n    \"phoneNumber\": \"0251661495\",\n    \"gender\": \"Male\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user"
+					]
+				},
+				"description": "creates a user"
+			},
+			"response": []
+		},
+		{
+			"name": "postUserOK country missing",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"ckri23era2z\",\n    \"birthdate\": \"07-06-2002\",\n    \"phoneNumber\": \"0251661495\",\n    \"gender\": \"Male\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user"
+					]
+				},
+				"description": "creates a user"
+			},
+			"response": []
+		},
+		{
+			"name": "postUserFail invalid gender",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"ckri23eraz\",\n    \"birthdate\": \"07-06-2002\",\n    \"country\": \"France\",\n    \"phoneNumber\": \"0251661495\",\n    \"gender\": \"null\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user"
+					]
+				},
+				"description": "creates a user"
+			},
+			"response": []
+		},
+		{
+			"name": "getUserOK",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/user/joe323",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"joe323"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserFail unknown user",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/user/joe3234",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"joe3234"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
