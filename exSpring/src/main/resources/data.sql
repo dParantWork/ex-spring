@@ -9,5 +9,5 @@ create table usr(
 );
 
 insert into usr values ('joe323', '1920-01-01', 'France', '0202050665','Male');
-insert into usr values ('emti52', '1992-11-16', 'England', '0846756611', 'Female');
+insert into usr values ('emti52', '1992-11-16', 'France', '0846756611', 'Female');
 insert into usr values ('zigzip8', '1963-01-01', 'France', '0124059470','Male');
