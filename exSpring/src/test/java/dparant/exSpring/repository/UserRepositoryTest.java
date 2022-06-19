@@ -1,6 +1,6 @@
 package dparant.exSpring.repository;
 
-import dparant.exSpring.dto.UserDTO;
+import dparant.exSpring.dto.User;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,7 +13,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 
 /**
- * Test class for the User Repository
+ * Test class for the UserRequest Repository
  *
  * @author dylan
  */
@@ -21,22 +21,21 @@ import java.time.LocalDate;
 @DataJpaTest
 public class UserRepositoryTest {
     @Autowired
-    private TestEntityManager entityManager;
-
-    @Autowired
     UserRepository repository;
+    @Autowired
+    private TestEntityManager entityManager;
 
     /**
      * test to retrieve a user
      */
     @Test
     public void testGetUserOK() {
-        UserDTO user = new UserDTO();
+        User user = new User();
         user.setUsername("Joe323");
         user.setBirthdate(Date.valueOf(LocalDate.now()));
         user.setCountry("France");
         entityManager.persist(user);
-        UserDTO foundedUser = repository.findById(user.getUsername()).get();
+        User foundedUser = repository.findById(user.getUsername()).get();
 
         Assert.assertTrue(user.getUsername().equals(foundedUser.getUsername()));
         Assert.assertTrue(user.getBirthdate().equals(foundedUser.getBirthdate()));
@@ -48,7 +47,7 @@ public class UserRepositoryTest {
      */
     @Test
     public void testCreateUserOK() {
-        UserDTO user = new UserDTO();
+        User user = new User();
         user.setUsername("Joe323");
         user.setBirthdate(Date.valueOf(LocalDate.now()));
         user.setCountry("France");

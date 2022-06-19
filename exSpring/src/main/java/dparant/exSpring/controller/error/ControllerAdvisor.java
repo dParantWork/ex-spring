@@ -2,7 +2,11 @@ package dparant.exSpring.controller.error;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.sun.jdi.request.InvalidRequestStateException;
-import dparant.exSpring.model.User;
+import dparant.exSpring.controller.UserController;
+import dparant.exSpring.model.Gender;
+import dparant.exSpring.model.request.UserRequest;
+import dparant.exSpring.model.validator.AgeValidator;
+import dparant.exSpring.service.UserServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.ObjectError;
@@ -35,17 +39,14 @@ public class ControllerAdvisor {
     /**
      * Handler for exceptions of type DateTimeParseException, this error is thrown when a date has an unparsable value
      *
-     * @see dparant.exSpring.model.User
-     * @see dparant.exSpring.controller.UserController#postUser(User) 
-     *
-     * @param ex Exception thrown during a method
+     * @param ex      Exception thrown during a method
      * @param request input of the request which thrown the exception
-     *
      * @return ResponseEntity Response with a status 400
+     * @see UserRequest
+     * @see UserController#postUser(UserRequest)
      */
     @ExceptionHandler(DateTimeParseException.class)
-    public ResponseEntity<Object> handleDateTimeParseException(
-            DateTimeParseException ex, WebRequest request) {
+    public ResponseEntity<Object> handleDateTimeParseException(DateTimeParseException ex, WebRequest request) {
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", formatter.format(LocalDateTime.now()));
@@ -58,17 +59,14 @@ public class ControllerAdvisor {
      * Handler for exceptions of type InvalidFormatException, this error is thrown when the gender doesn't have
      * a value of the enum Gender (Male, Female)
      *
-     * @see dparant.exSpring.model.Gender
-     * @see dparant.exSpring.controller.UserController#postUser(User) 
-     *
-     * @param ex Exception thrown during a method
+     * @param ex      Exception thrown during a method
      * @param request input of the request which thrown the exception
-     *
      * @return ResponseEntity Response with a status 400
+     * @see Gender
+     * @see UserController#postUser(UserRequest)
      */
     @ExceptionHandler(InvalidFormatException.class)
-    public ResponseEntity<Object> handleInvalidFormatException(
-            InvalidFormatException ex, WebRequest request) {
+    public ResponseEntity<Object> handleInvalidFormatException(InvalidFormatException ex, WebRequest request) {
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", formatter.format(LocalDateTime.now()));
@@ -81,23 +79,19 @@ public class ControllerAdvisor {
      * Handler for exceptions of type MethodArgumentNotValidException, this error is thrown when
      * the input data object is not valid
      *
-     * @see dparant.exSpring.controller.UserController#postUser(User) 
-     * @see dparant.exSpring.model.User
-     * @see dparant.exSpring.model.validator.AgeValidator
-     *
-     * @param ex Exception thrown during a method
+     * @param ex      Exception thrown during a method
      * @param request input of the request which thrown the exception
-     *
      * @return ResponseEntity Response with status 400
+     * @see UserController#postUser(UserRequest)
+     * @see UserRequest
+     * @see AgeValidator
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Object> handleMethodArgumentNotValidException(
-            MethodArgumentNotValidException ex, WebRequest request) {
+    public ResponseEntity<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, WebRequest request) {
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", formatter.format(LocalDateTime.now()));
-        body.put("message", "Validation failed: " +
-                ex.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(", ")) );
+        body.put("message", "Validation failed: " + ex.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(", ")));
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
@@ -105,17 +99,13 @@ public class ControllerAdvisor {
     /**
      * Handler for exceptions of type  MethodArgumentNotValidException, this error is thrown when an object isn't found in the database
      *
-     * @see dparant.exSpring.service.UserServiceImpl#getUser(String)  
-     *
-     *
-     * @param ex Exception thrown during a method
+     * @param ex      Exception thrown during a method
      * @param request input of the request which thrown the exception
-     *
      * @return ResponseEntity : Response with a status 404
+     * @see UserServiceImpl#getUser(String)
      */
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<Object> handleNoSuchElementException(
-            NoSuchElementException ex, WebRequest request) {
+    public ResponseEntity<Object> handleNoSuchElementException(NoSuchElementException ex, WebRequest request) {
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", formatter.format(LocalDateTime.now()));
@@ -124,21 +114,17 @@ public class ControllerAdvisor {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
-    //
+
     /**
-     * Handler for exceptions of type  MethodArgumentNotValidException, this error is thrown when an object isn't found in the database
+     * Handler for exceptions of type  MethodArgumentNotValidException, this error is thrown when an object is found in the database
      *
-     * @see dparant.exSpring.service.UserServiceImpl#createUser(User)
-     *
-     *
-     * @param ex Exception thrown during a method
+     * @param ex      Exception thrown during a method
      * @param request input of the request which thrown the exception
-     *
      * @return ResponseEntity : Response with a status 400
+     * @see UserServiceImpl#createUser(UserRequest)
      */
     @ExceptionHandler(InvalidRequestStateException.class)
-    public ResponseEntity<Object> handleInvalidRequestStateException(
-            InvalidRequestStateException ex, WebRequest request) {
+    public ResponseEntity<Object> handleInvalidRequestStateException(InvalidRequestStateException ex, WebRequest request) {
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", formatter.format(LocalDateTime.now()));

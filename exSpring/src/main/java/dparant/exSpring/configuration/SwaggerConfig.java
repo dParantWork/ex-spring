@@ -17,18 +17,10 @@ import static springfox.documentation.builders.PathSelectors.regex;
 public class SwaggerConfig {
     @Bean
     public Docket productApi() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("dparant.exSpring.controller"))
-                .paths(regex("/user.*"))
-                .build()
-                .apiInfo(metaData())
-                .useDefaultResponseMessages(false);
+        return new Docket(DocumentationType.SWAGGER_2).select().apis(RequestHandlerSelectors.basePackage("dparant.exSpring.controller")).paths(regex("/user.*")).build().apiInfo(metaData()).useDefaultResponseMessages(false);
     }
 
     private ApiInfo metaData() {
-        return new ApiInfoBuilder().title("API Documentation for a User").version("1.0.0")
-                .description("API describing routes for a User")
-                .build();
+        return new ApiInfoBuilder().title("API Documentation for a UserRequest").version("1.0.0").description("API describing routes for a UserRequest").build();
     }
 }

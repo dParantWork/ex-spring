@@ -5,17 +5,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.sun.jdi.request.InvalidRequestStateException;
 import dparant.exSpring.model.Gender;
-import dparant.exSpring.model.User;
+import dparant.exSpring.model.request.UserRequest;
+import dparant.exSpring.model.response.UserResponse;
 import dparant.exSpring.service.UserService;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -27,52 +33,96 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(UserController.class)
-public class UserServiceTest {
+/**
+ * Test class for the user controller
+ *
+ * @author dylan
+ */
+@ExtendWith(SpringExtension.class)
+@WebAppConfiguration
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class UserControllerTest {
     private ObjectMapper objectMapper;
 
-    private User user;
+    private UserRequest userRequest;
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Mock
     private UserService service;
 
-    @BeforeEach
-    private void initObjectMapper() {
-       this.objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    @InjectMocks
+    private UserController userController = new UserController(service);
+
+    /**
+     * inits the mockMvc
+     */
+    @BeforeAll
+    public void initMockMvc() {
+        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
     }
 
+    /**
+     * inits the object mapper
+     */
+    @BeforeAll
+    private void initObjectMapper() {
+        this.objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
+
+    /**
+     * inits the basics data for a user
+     */
     @BeforeEach
     private void initUserBasicData() {
-        user = new User();
-        user.setUsername("Joe323");
-        user.setBirthdate(LocalDate.now());
-        user.setCountry("France");
+        userRequest = new UserRequest();
+        userRequest.setUsername("Joe323");
+        userRequest.setBirthdate(LocalDate.now());
+        userRequest.setCountry("France");
     }
 
-
+    /**
+     * returns the uri
+     *
+     * @param username
+     * @return
+     */
     private URI getURI(String username) {
         MockHttpServletRequest request = new MockHttpServletRequest();
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
         return ServletUriComponentsBuilder
                 .fromCurrentRequest()
-                .path("/{username}")
+                .path("/user/{username}")
                 .buildAndExpand(username)
                 .toUri();
     }
+
     /**
-     * Test "GET" for an existing user
+     * method mapping a userRequest to a userResponse
+     *
+     * @param user
+     * @return
+     */
+    private UserResponse getUserResponse(UserRequest user) {
+        UserResponse userResponse = new UserResponse();
+        userResponse.setUsername(user.getUsername());
+        userResponse.setBirthdate(user.getBirthdate());
+        userResponse.setCountry(user.getCountry());
+        userResponse.setPhoneNumber(user.getPhoneNumber());
+        userResponse.setGender(user.getGender());
+        return userResponse;
+    }
+
+    /**
+     * Test "GET" for an existing userRequest
      *
      * @see UserService#getUser(String)
      */
@@ -80,13 +130,13 @@ public class UserServiceTest {
     public void testGetUserOk() {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         Map<String, String> expectingResults = new HashMap<>();
-        expectingResults.put("username", user.getUsername());
-        expectingResults.put("birthdate", user.getBirthdate().format(dateTimeFormatter));
-        expectingResults.put("country", user.getCountry());
+        expectingResults.put("username", userRequest.getUsername());
+        expectingResults.put("birthdate", userRequest.getBirthdate().format(dateTimeFormatter));
+        expectingResults.put("country", userRequest.getCountry());
 
-        when(service.getUser(user.getUsername())).thenReturn(user);
+        when(service.getUser(userRequest.getUsername())).thenReturn(getUserResponse(userRequest));
         try {
-            this.mockMvc.perform(get("/user/"+user.getUsername())).andDo(print())
+            this.mockMvc.perform(get("/user/" + userRequest.getUsername())).andDo(print())
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                     .andExpect(content().json(objectMapper.writeValueAsString(expectingResults)));
@@ -102,72 +152,69 @@ public class UserServiceTest {
      */
     @Test
     public void testGetUserNotFound() {
-        when(service.getUser(user.getUsername())).thenThrow(new NoSuchElementException());
+        when(service.getUser(userRequest.getUsername())).thenThrow(new NoSuchElementException());
         try {
-            this.mockMvc.perform(get("/user/"+user.getUsername())).andDo(print())
-                    .andExpect(status().isNotFound())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
-                    .andExpect(content().string(containsString("No data found")));
+            this.mockMvc.perform(get("/user/" + userRequest.getUsername()));
+            Assert.fail("The operation must throw an exception");
         } catch (Exception e) {
-            Assert.fail("Exception thrown : " + e.getMessage());
+            Assert.assertNotNull(e);
         }
     }
 
     /**
      * Test "POST" for a user
      *
-     * @see UserService#createUser(User)
+     * @see UserService#createUser(UserRequest)
      */
     @Test
     public void testPostUserOk() {
-        user.setBirthdate(LocalDate.of(1920,01,01));
-        user.setPhoneNumber("0323232323");
-        user.setGender(Gender.Female);
+        userRequest.setBirthdate(LocalDate.of(1920, 01, 01));
+        userRequest.setPhoneNumber("0323232323");
+        userRequest.setGender(Gender.Female);
 
-        URI uri = getURI(user.getUsername());
+        URI uri = getURI(userRequest.getUsername());
 
-        when(service.createUser(user)).thenReturn(uri);
+        when(service.createUser(userRequest)).thenReturn(getUserResponse(userRequest));
         try {
             this.mockMvc.perform(post("/user")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsBytes(user)))
+                            .content(objectMapper.writeValueAsBytes(userRequest)))
                     .andExpect(status().isCreated())
-                    .andExpect(header().string("location",uri.toString()));
+                    .andExpect(header().string("location", uri.toString()));
         } catch (Exception e) {
             Assert.fail("Exception thrown : " + e.getMessage());
         }
     }
 
     /**
-     * Test "POST" for a user without non required element
+     * Test "POST" for a userRequest without non required element
      *
-     * @see UserService#createUser(User)
+     * @see UserService#createUser(UserRequest)
      */
     @Test
     public void testPostUserOkWithoutGenderAndPhoneNumber() {
-        URI uri = getURI(user.getUsername());
-        user.setBirthdate(LocalDate.of(1920,01,01));
-        when(service.createUser(user)).thenReturn(uri);
+        URI uri = getURI(userRequest.getUsername());
+        userRequest.setBirthdate(LocalDate.of(1920, 01, 01));
+        when(service.createUser(userRequest)).thenReturn(getUserResponse(userRequest));
         try {
             this.mockMvc.perform(post("/user")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsBytes(user)))
+                            .content(objectMapper.writeValueAsBytes(userRequest)))
                     .andExpect(status().isCreated())
-                    .andExpect(header().string("location",uri.toString()));
+                    .andExpect(header().string("location", uri.toString()));
         } catch (Exception e) {
             Assert.fail("Exception thrown : " + e.getMessage());
         }
     }
 
     /**
-     * Test "POST" for a user without country
+     * Test "POST" for a userRequest without country
      *
-     * @see UserService#createUser(User)
+     * @see UserService#createUser(UserRequest)
      */
     @Test
     public void testPostUserFailMissingFields() {
-        URI uri = getURI(user.getUsername());
-        when(service.createUser(user)).thenReturn(uri);
+        when(service.createUser(userRequest)).thenReturn(getUserResponse(userRequest));
         try {
             this.mockMvc.perform(post("/user")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -179,14 +226,13 @@ public class UserServiceTest {
     }
 
     /**
-     * Test "POST" for a non existing user but with a bad date
+     * Test "POST" for a non existing userRequest but with a bad date
      *
-     * @see UserService#createUser(User)
+     * @see UserService#createUser(UserRequest)
      */
     @Test
     public void testPostUserFailInvalidDate() {
-        URI uri = getURI(user.getUsername());
-        when(service.createUser(user)).thenReturn(uri);
+        when(service.createUser(userRequest)).thenReturn(getUserResponse(userRequest));
         try {
             this.mockMvc.perform(post("/user")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -200,12 +246,12 @@ public class UserServiceTest {
     /**
      * Test "POST" for an existing user
      *
-     * @see UserService#createUser(User)
+     * @see UserService#createUser(UserRequest)
      */
     @Test
     public void testPostUserFailExistingUser() {
-        URI uri = getURI(user.getUsername());
-        when(service.createUser(user)).thenThrow(new InvalidRequestStateException("The user already exists"));
+        URI uri = getURI(userRequest.getUsername());
+        when(service.createUser(userRequest)).thenThrow(new InvalidRequestStateException("The user already exists"));
         try {
             this.mockMvc.perform(post("/user")
                             .contentType(MediaType.APPLICATION_JSON)

@@ -12,15 +12,15 @@ A postman collection is available at the root of the project. <br>
 	
 ### Post : 
  - Informations :
- 	Creation of a user.
-	The post call doesn't return any information in the body, it just return the uri to get the user in the location header.
+ 	Creation of a userRequest.
+	The post call doesn't return any information in the body, it just return the uri to get the userRequest in the location header.
  - Code returned : 
    201 Created
    400 Bad Request
   
 ### Get : 
  - Informations :
-	The get call is used to retrieve user's informations.
+	The get call is used to retrieve userRequest's informations.
  - Code returned : 
    200 OK
    404 Not Found

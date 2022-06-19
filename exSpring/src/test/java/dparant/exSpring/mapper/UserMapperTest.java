@@ -1,8 +1,9 @@
 package dparant.exSpring.mapper;
 
-import dparant.exSpring.dto.UserDTO;
+import dparant.exSpring.dto.User;
 import dparant.exSpring.model.Gender;
-import dparant.exSpring.model.User;
+import dparant.exSpring.model.request.UserRequest;
+import dparant.exSpring.model.response.UserResponse;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,20 +22,20 @@ public class UserMapperTest {
      */
     @Test
     public void testUserDtoToUser() {
-        UserDTO userDTO = new UserDTO();
+        User userDTO = new User();
         userDTO.setUsername("test");
         userDTO.setBirthdate(Date.valueOf(LocalDate.now()));
         userDTO.setCountry("France");
         userDTO.setPhoneNumber("0303030303");
         userDTO.setGender("Male");
 
-        User user = UserMapper.INSTANCE.userDTOToUser(userDTO);
+        UserResponse userResponse = UserMapper.INSTANCE.userToUserResponse(userDTO);
 
-        Assert.assertTrue(user.getUsername().equals(userDTO.getUsername()));
-        Assert.assertTrue(user.getBirthdate().equals(userDTO.getBirthdate().toLocalDate()));
-        Assert.assertTrue(user.getCountry().equals(userDTO.getCountry()));
-        Assert.assertTrue(user.getPhoneNumber().equals(userDTO.getPhoneNumber()));
-        Assert.assertTrue(user.getGender().name().equals(userDTO.getGender()));
+        Assert.assertTrue(userResponse.getUsername().equals(userDTO.getUsername()));
+        Assert.assertTrue(userResponse.getBirthdate().equals(userDTO.getBirthdate().toLocalDate()));
+        Assert.assertTrue(userResponse.getCountry().equals(userDTO.getCountry()));
+        Assert.assertTrue(userResponse.getPhoneNumber().equals(userDTO.getPhoneNumber()));
+        Assert.assertTrue(userResponse.getGender().name().equals(userDTO.getGender()));
     }
 
     /**
@@ -42,19 +43,19 @@ public class UserMapperTest {
      */
     @Test
     public void testUserToDto() {
-        User user = new User();
-        user.setUsername("test");
-        user.setBirthdate(LocalDate.now());
-        user.setCountry("France");
-        user.setPhoneNumber("0303030303");
-        user.setGender(Gender.Female);
+        UserRequest userRequest = new UserRequest();
+        userRequest.setUsername("test");
+        userRequest.setBirthdate(LocalDate.now());
+        userRequest.setCountry("France");
+        userRequest.setPhoneNumber("0303030303");
+        userRequest.setGender(Gender.Female);
 
-        UserDTO userDto = UserMapper.INSTANCE.userToUserDTO(user);
+        User userDto = UserMapper.INSTANCE.userRequestToUser(userRequest);
 
-        Assert.assertTrue(userDto.getUsername().equals(user.getUsername()));
-        Assert.assertTrue(userDto.getBirthdate().toLocalDate().equals(user.getBirthdate()));
-        Assert.assertTrue(userDto.getCountry().equals(user.getCountry()));
-        Assert.assertTrue(userDto.getPhoneNumber().equals(user.getPhoneNumber()));
-        Assert.assertTrue(userDto.getGender().equals(user.getGender().name()));
+        Assert.assertTrue(userDto.getUsername().equals(userRequest.getUsername()));
+        Assert.assertTrue(userDto.getBirthdate().toLocalDate().equals(userRequest.getBirthdate()));
+        Assert.assertTrue(userDto.getCountry().equals(userRequest.getCountry()));
+        Assert.assertTrue(userDto.getPhoneNumber().equals(userRequest.getPhoneNumber()));
+        Assert.assertTrue(userDto.getGender().equals(userRequest.getGender().name()));
     }
 }

@@ -1,32 +1,31 @@
 package dparant.exSpring.service;
 
-import dparant.exSpring.model.User;
+import com.sun.jdi.request.InvalidRequestStateException;
+import dparant.exSpring.model.request.UserRequest;
+import dparant.exSpring.model.response.UserResponse;
 
-import java.net.URI;
 import java.util.NoSuchElementException;
 
 /**
- * Service interface managing any operation for a User
+ * Service interface managing any operation for a UserRequest
  */
 public interface UserService {
 
     /**
-     * Creates a user
+     * Creates a userRequest
      *
-     * @param user The User who needs to be created
-     *
-     * @return the URI for getting the created user
+     * @param userRequest The UserRequest who needs to be created
+     * @return the created User
+     * @throws InvalidRequestStateException exception thrown if a user is found
      */
-    public abstract URI createUser(User user);
+    UserResponse createUser(UserRequest userRequest) throws InvalidRequestStateException;
 
     /**
      * Gets a user
      *
-     * @param username The username for the User
-     *
-     * @throws NoSuchElementException
-     *
+     * @param username The username for the UserRequest
      * @return The founded User
+     * @throws NoSuchElementException exception thrown if a user is not found
      */
-    public abstract User getUser(String username) throws NoSuchElementException;
+    UserResponse getUser(String username) throws NoSuchElementException;
 }

@@ -1,68 +1,62 @@
 package dparant.exSpring.service;
 
 import com.sun.jdi.request.InvalidRequestStateException;
+import dparant.exSpring.dto.User;
 import dparant.exSpring.mapper.UserMapper;
-import dparant.exSpring.model.User;
-import dparant.exSpring.dto.UserDTO;
+import dparant.exSpring.model.request.UserRequest;
+import dparant.exSpring.model.response.UserResponse;
 import dparant.exSpring.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
- * Implementation of the UserService interface, used to manage any User operations
+ * This class is used to manage any UserRequest operations
  *
  * @author dylan
  */
 @Service
+@AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
     /**
-     * User repository allowing us to perform operation on the database
+     * UserRequest repository allowing us to perform operation on the database
      */
-    @Autowired
+    // injection field -> reflexion ..
+    // injection constructor
     UserRepository userRepository;
 
     /**
-     * Creates a user
+     * Creates a userRequest
      *
-     * @param user The User who needs to be created
-     *
-     * @return the URI for getting the created user
+     * @param userRequest The UserRequest who needs to be created
+     * @return the created UserRequest
+     * @throws InvalidRequestStateException exception thrown if the userRequest exists
      */
     @Override
-    public URI createUser(User user) throws InvalidRequestStateException {
-        UserDTO dto = UserMapper.INSTANCE.userToUserDTO(user);
-        if(userRepository.findById(dto.getUsername()).isPresent()) {
-            throw new InvalidRequestStateException("The user already exists");
+    public UserResponse createUser(UserRequest userRequest) throws InvalidRequestStateException {
+        User dto = UserMapper.INSTANCE.userRequestToUser(userRequest);
+        if (userRepository.findById(dto.getUsername()).isPresent()) {
+            throw new InvalidRequestStateException("The userRequest already exists");
         }
-        UserDTO result = userRepository
-                .save(dto);
-        return ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{username}")
-                .buildAndExpand(result.getUsername())
-                .toUri();
+        User result = userRepository.save(dto);
+        return UserMapper.INSTANCE.userToUserResponse(result);
     }
 
     /**
      * Gets a user
      *
-     * @param username The username for the User
-     *
-     * @throws NoSuchElementException
-     *
-     * @return The founded User
+     * @param username The username for the UserRequest
+     * @return The founded UserRequest
+     * @throws NoSuchElementException exception thrown if the user isn't found in the database
      */
     @Override
-    public User getUser(String username) throws NoSuchElementException {
-        Optional<UserDTO> userData = userRepository.findById(username);
+    public UserResponse getUser(String username) throws NoSuchElementException {
+        Optional<User> userData = userRepository.findById(username);
         if (userData.isPresent()) {
-            return UserMapper.INSTANCE.userDTOToUser(userData.get());
+            return UserMapper.INSTANCE.userToUserResponse(userData.get());
         } else {
             throw new NoSuchElementException();
         }
